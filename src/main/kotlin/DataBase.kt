@@ -2,32 +2,17 @@ import java.io.File
 
 class DataBase {
 
-    var firstProduct: Int? = null
-    var secondProduct: Int? = null
-    var thirdProduct: Int? = null
-    var fourthProduct: Int? = null
-    var fifthProduct: Int? = null
-
-    fun download() { // выгружаем данные из БД
+    private fun download(): MutableList<Int> { // выгружаем данные из БД
         val file = File("dataBase").bufferedReader().readLines()
-        val listOfCurrentValue = parser(file)
-        firstProduct = listOfCurrentValue[0]
-        secondProduct = listOfCurrentValue[1]
-        thirdProduct = listOfCurrentValue[2]
-        fourthProduct = listOfCurrentValue[3]
-        fifthProduct = listOfCurrentValue[4]
+        return parser(file)
     }
 
     @Synchronized
-    private fun upload(): String { // метод который обновляет данные в БД
+    fun upload(str: String): String { // метод который обновляет данные в БД
         val file = File("dataBase").bufferedReader().readLines()
         val listOfNewData = mutableListOf<String>()
-        val listOfCurrentValue =  mutableListOf<Int?>()
-        listOfCurrentValue.add(firstProduct)
-        listOfCurrentValue.add(secondProduct)
-        listOfCurrentValue.add(thirdProduct)
-        listOfCurrentValue.add(fourthProduct)
-        listOfCurrentValue.add(fifthProduct)
+        val listOfCurrentValue = subtraction(str)
+
         for (i in 0 until file.size) {
             val part = file[i].split("_")
             listOfNewData.add("${part[0]}_${part[1]}_${listOfCurrentValue[i]}")
@@ -38,28 +23,23 @@ class DataBase {
             output.newLine()
         }
         output.close()
-        return "$firstProduct|$secondProduct|$thirdProduct|$fourthProduct|$fifthProduct"
+        return "${listOfCurrentValue[0]}|${listOfCurrentValue[1]}|${listOfCurrentValue[2]}|${listOfCurrentValue[3]}|${listOfCurrentValue[4]}\r\n"
     }
 
-     @Synchronized
-     private fun subtraction(str: String) { // проводим операцию вычитания с разделяемым ресурсом (БД)
+     private fun subtraction(str: String): MutableList<Int> { // проводим операцию вычитания с разделяемым ресурсом (БД)
+         val dataFromBD = download()
          val part = str.split(" ")
-         firstProduct = firstProduct?.minus(part[0].toInt())
-         if (firstProduct!! < 0) firstProduct = 0
-         secondProduct = secondProduct?.minus(part[1].toInt())
-         if (secondProduct!! < 0) secondProduct = 0
-         thirdProduct = thirdProduct?.minus(part[2].toInt())
-         if (thirdProduct!! < 0) thirdProduct = 0
-         fourthProduct = fourthProduct?.minus(part[3].toInt())
-         if (fourthProduct!! < 0) fourthProduct = 0
-         fifthProduct = fifthProduct?.minus(part[4].toInt())
-         if (fifthProduct!! < 0) fifthProduct = 0
-    }
-
-    @Synchronized // метод для выполнения нескольких операций над БД синхроннизированно
-    fun syncFun(str: String): String {
-        subtraction(str)
-        return upload()
+         dataFromBD[0] = dataFromBD[0] - part[0].toInt()
+         if (dataFromBD[0] - part[0].toInt() < 0) dataFromBD[0] = 0
+         dataFromBD[1] = dataFromBD[1] - part[1].toInt()
+         if (dataFromBD[1] - part[1].toInt() < 0) dataFromBD[1] = 0
+         dataFromBD[2] = dataFromBD[2] - part[2].toInt()
+         if (dataFromBD[2] - part[2].toInt() < 0) dataFromBD[2] = 0
+         dataFromBD[3] = dataFromBD[3] - part[3].toInt()
+         if (dataFromBD[3] - part[3].toInt() < 0) dataFromBD[3] = 0
+         dataFromBD[4] = dataFromBD[4] - part[4].toInt()
+         if (dataFromBD[4] - part[4].toInt() < 0) dataFromBD[4] = 0
+         return dataFromBD
     }
 
     private fun parser(list: List<String>): MutableList<Int> { // парсер данных из бд
